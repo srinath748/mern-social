@@ -27,21 +27,21 @@ app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 app.use(helmet());
 app.use(morgan("dev"));
-// server/server.js
 
+// CORS: allow your frontend to access backend
 app.use(
   cors({
-    origin: "https://mern-social-4.onrender.com", // frontend URL
+    origin: process.env.FRONTEND_URL || "https://mern-social-4.onrender.com",
     credentials: true,
   })
 );
-
 
 /* -------------------- Static folder for images -------------------- */
 app.use(
   "/assets",
   express.static(path.join(__dirname, "public/assets"), {
     setHeaders: (res) => {
+      // Allow images to be loaded cross-origin
       res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
     },
   })
@@ -50,7 +50,7 @@ app.use(
 /* -------------------- Routes -------------------- */
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/posts", postRoutes);
+app.use("/api/posts", postRoutes); // posts.js handles upload middleware
 
 /* -------------------- Default API Route -------------------- */
 app.get("/api", (req, res) => {

@@ -24,6 +24,9 @@ import ChatBubbleIcon from "@mui/icons-material/ChatBubble";
 const PostCard = ({ post, onLike }) => {
   const [comment, setComment] = useState("");
 
+  // ✅ Backend URL (use env for flexibility)
+  const backendUrl = process.env.REACT_APP_API_URL || "https://mern-social-3.onrender.com";
+
   const handleLike = async () => {
     try {
       const { data } = await API.patch(`/posts/${post._id}/like`);
@@ -48,6 +51,9 @@ const PostCard = ({ post, onLike }) => {
   const postFirstInitial = post.firstName?.[0]?.toUpperCase() || "U";
   const postFullName = `${post.firstName || "Unknown"} ${post.lastName || ""}`.trim();
 
+  // ✅ Build full image URL
+  const postImage = post.picturePath ? `${backendUrl}${post.picturePath}` : null;
+
   return (
     <Card sx={{ maxWidth: 600, margin: "20px auto" }}>
       {/* Post header */}
@@ -66,11 +72,11 @@ const PostCard = ({ post, onLike }) => {
         <Typography variant="body1" gutterBottom component="div">
           {post.description}
         </Typography>
-        {post.picturePath && (
+        {postImage && (
           <img
-            src={`http://localhost:5000${post.picturePath}`}
+            src={postImage}
             alt="post"
-            style={{ maxWidth: "100%", borderRadius: 4 }}
+            style={{ maxWidth: "100%", borderRadius: 4, marginTop: "10px" }}
           />
         )}
       </CardContent>
@@ -151,4 +157,3 @@ const PostCard = ({ post, onLike }) => {
 };
 
 export default PostCard;
-

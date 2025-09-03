@@ -14,7 +14,7 @@ const Feed = () => {
       const { data } = await API.get("/posts");
       setPosts(data);
     } catch (err) {
-      console.error("Failed to load posts", err);
+      console.error("❌ Failed to load posts:", err);
     } finally {
       setLoading(false);
     }
@@ -24,12 +24,13 @@ const Feed = () => {
     fetchPosts();
   }, []);
 
+  // ✅ Use functional updates to avoid stale state issues
   const handlePostCreated = (newPost) => {
-    setPosts([newPost, ...posts]);
+    setPosts((prev) => [newPost, ...prev]);
   };
 
   const handleLikeUpdated = (updatedPost) => {
-    setPosts(posts.map((p) => (p._id === updatedPost._id ? updatedPost : p)));
+    setPosts((prev) => prev.map((p) => (p._id === updatedPost._id ? updatedPost : p)));
   };
 
   return (
