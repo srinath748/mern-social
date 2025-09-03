@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Use deployed backend URL
 const API = axios.create({
-  baseURL: `https://mern-social-1-q5t5.onrender.com/api`, // deployed backend URL
+  baseURL: `https://mern-social-3.onrender.com/api`, // deployed backend URL
 });
 
 // Attach token to every request if available
