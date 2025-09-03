@@ -29,7 +29,7 @@ app.use(helmet());
 app.use(morgan("dev"));
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: process.env.CLIENT_URL, // Set this to your frontend URL on Render
     credentials: true,
   })
 );
@@ -49,15 +49,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 
-/* -------------------- Serve React frontend in production -------------------- */
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../client/build")));
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../client/build", "index.html"));
-  });
-}
-
 /* -------------------- Default API Route -------------------- */
 app.get("/api", (req, res) => {
   res.send("🚀 API is running");
@@ -67,10 +58,7 @@ app.get("/api", (req, res) => {
 const PORT = process.env.PORT || 5000;
 
 mongoose
-  .connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGO_URL)
   .then(() => {
     app.listen(PORT, () => {
       console.log(`✅ Server running on port ${PORT}`);
