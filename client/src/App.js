@@ -1,4 +1,3 @@
-// client/src/App.js
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -12,12 +11,14 @@ import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 
 function App() {
-  const token = useSelector((state) => state.auth.token);
+  const token = useSelector((state) => state.auth.token) || localStorage.getItem("token"); 
+  // ✅ fallback to localStorage in case Redux hasn't rehydrated yet
+
   const themeMode = useSelector((state) => state.theme.mode);
 
   const theme = createTheme({
     palette: {
-      mode: themeMode, // 'light' or 'dark'
+      mode: themeMode || "light", // default to light mode if not set
     },
   });
 
@@ -38,7 +39,10 @@ function App() {
           <Route path="/register" element={<Register />} />
 
           {/* Profile route */}
-          <Route path="/profile/:userId" element={token ? <Profile /> : <Navigate to="/login" />} />
+          <Route
+            path="/profile/:userId"
+            element={token ? <Profile /> : <Navigate to="/login" />}
+          />
         </Routes>
       </Container>
     </ThemeProvider>

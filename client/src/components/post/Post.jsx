@@ -13,15 +13,18 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import CommentIcon from "@mui/icons-material/Comment";
 
 function Post({ post, onLike, onComment }) {
-  // Backend URL from environment variable
-  const backendUrl = process.env.REACT_APP_API_URL || "https://mern-social-3.onrender.com";
+  // ✅ Use the same BACKEND_URL everywhere
+  const BACKEND_URL =
+    process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 
-  // Build full URLs for images
+  // ✅ Build full URLs for images (make sure backend serves /assets correctly)
   const profilePic = post.userProfilePic
-    ? `${backendUrl}/assets/${post.userProfilePic}`
+    ? `${BACKEND_URL}/assets/${post.userProfilePic}`
     : undefined;
 
-  const postImage = post.image ? `${backendUrl}/assets/${post.image}` : null;
+  const postImage = post.image
+    ? `${BACKEND_URL}/assets/${post.image}`
+    : null;
 
   return (
     <Card sx={{ maxWidth: 600, margin: "20px auto" }}>
@@ -39,7 +42,12 @@ function Post({ post, onLike, onComment }) {
           <img
             src={postImage}
             alt="post"
-            style={{ width: "100%", borderRadius: "8px", marginTop: "10px" }}
+            style={{
+              width: "100%",
+              borderRadius: "8px",
+              marginTop: "10px",
+              objectFit: "cover",
+            }}
           />
         )}
       </CardContent>

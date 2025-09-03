@@ -32,12 +32,15 @@ const Home = () => {
     try {
       const formData = new FormData();
       formData.append("description", newPost);
-      if (image) formData.append("image", image);
+
+      // ✅ must match backend multer config (upload.single("picture"))
+      if (image) formData.append("picture", image);
 
       await dispatch(addPost(formData)).unwrap();
       setNewPost("");
       setImage(null);
     } catch (err) {
+      console.error("❌ Failed to add post:", err);
       alert("Failed to add post");
     }
   };
@@ -70,7 +73,11 @@ const Home = () => {
         />
 
         {/* Image upload + Post button */}
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems="center">
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={2}
+          alignItems="center"
+        >
           <Button
             variant="outlined"
             component="label"

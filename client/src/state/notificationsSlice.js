@@ -5,36 +5,51 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   unreadLikes: 0,
   unreadComments: 0,
+  unreadMessages: 0, // 🔥 optional future use (chat system, DMs)
 };
 
 const notificationsSlice = createSlice({
   name: "notifications",
   initialState,
   reducers: {
-    // Set the number of unread likes
+    // Setters
     setUnreadLikes: (state, action) => {
       state.unreadLikes = action.payload;
     },
-
-    // Set the number of unread comments
     setUnreadComments: (state, action) => {
       state.unreadComments = action.payload;
     },
+    setUnreadMessages: (state, action) => {
+      state.unreadMessages = action.payload;
+    },
 
-    // Increment likes by 1
+    // Incrementers
     incrementLikes: (state) => {
       state.unreadLikes += 1;
     },
-
-    // Increment comments by 1
     incrementComments: (state) => {
       state.unreadComments += 1;
     },
+    incrementMessages: (state) => {
+      state.unreadMessages += 1;
+    },
 
-    // Clear all notifications
+    // Clearers
+    clearLikes: (state) => {
+      state.unreadLikes = 0;
+    },
+    clearComments: (state) => {
+      state.unreadComments = 0;
+    },
+    clearMessages: (state) => {
+      state.unreadMessages = 0;
+    },
+
+    // Clear all
     clearNotifications: (state) => {
       state.unreadLikes = 0;
       state.unreadComments = 0;
+      state.unreadMessages = 0;
     },
   },
 });
@@ -43,8 +58,13 @@ const notificationsSlice = createSlice({
 export const {
   setUnreadLikes,
   setUnreadComments,
+  setUnreadMessages,
   incrementLikes,
   incrementComments,
+  incrementMessages,
+  clearLikes,
+  clearComments,
+  clearMessages,
   clearNotifications,
 } = notificationsSlice.actions;
 

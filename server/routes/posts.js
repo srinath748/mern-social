@@ -1,10 +1,14 @@
+// server/routes/posts.js
 import express from "express";
 import verifyToken from "../middleware/auth.js";
 import Post from "../models/Post.js";
 import User from "../models/User.js";
-import upload from "../middleware/upload.js"; // ✅ now correct
+import upload from "../middleware/upload.js";
 
 const router = express.Router();
+
+// Use env backend URL (for deployed) or localhost (for dev)
+const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
 
 /* -------------------- Get All Posts -------------------- */
 router.get("/", verifyToken, async (req, res) => {
@@ -31,8 +35,12 @@ router.post("/", verifyToken, upload.single("picture"), async (req, res) => {
       firstName: user.firstName,
       lastName: user.lastName,
       description: description || "",
-      picturePath: req.file ? `/assets/${req.file.filename}` : "",
-      userPicturePath: user.picturePath || "",
+      picturePath: req.file
+        ? `${backendUrl}/assets/${req.file.filename}`
+        : "",
+      userPicturePath: user.picturePath
+        ? `${backendUrl}${user.picturePath}`
+        : "",
       likes: new Map(),
       comments: [],
       createdAt: new Date(),

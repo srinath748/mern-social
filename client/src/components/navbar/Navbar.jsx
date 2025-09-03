@@ -42,6 +42,8 @@ const Navbar = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+
   const handleLogout = () => {
     dispatch(setLogout());
     localStorage.removeItem("token");
@@ -80,7 +82,14 @@ const Navbar = () => {
         {token && user && (
           <>
             <ListItem>
-              <Avatar src={user.profilePicture} alt={user.firstName} />
+              <Avatar
+                src={
+                  user?.profilePicture
+                    ? `${BACKEND_URL}/assets/${user.profilePicture}`
+                    : ""
+                }
+                alt={user?.firstName}
+              />
               <ListItemText
                 primary={`${user.firstName} ${user.lastName}`}
                 sx={{ ml: 1 }}
@@ -91,7 +100,9 @@ const Navbar = () => {
             </ListItem>
             <ListItem button onClick={handleToggleTheme}>
               <ListItemText
-                primary={`Switch to ${themeMode === "light" ? "Dark" : "Light"} Mode`}
+                primary={`Switch to ${
+                  themeMode === "light" ? "Dark" : "Light"
+                } Mode`}
               />
             </ListItem>
           </>
@@ -141,22 +152,29 @@ const Navbar = () => {
                 anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                 transformOrigin={{ vertical: "top", horizontal: "right" }}
               >
-                <MenuItem>
-                  Likes: {unreadLikes}
-                </MenuItem>
+                <MenuItem>Likes: {unreadLikes}</MenuItem>
                 <Divider />
-                <MenuItem>
-                  Comments: {unreadComments}
-                </MenuItem>
+                <MenuItem>Comments: {unreadComments}</MenuItem>
               </Menu>
 
               {/* Theme toggle */}
               <IconButton onClick={handleToggleTheme}>
-                {themeMode === "light" ? <Brightness4Icon /> : <Brightness7Icon />}
+                {themeMode === "light" ? (
+                  <Brightness4Icon />
+                ) : (
+                  <Brightness7Icon />
+                )}
               </IconButton>
 
               {/* User info */}
-              <Avatar src={user.profilePicture} alt={user.firstName} />
+              <Avatar
+                src={
+                  user?.profilePicture
+                    ? `${BACKEND_URL}/assets/${user.profilePicture}`
+                    : ""
+                }
+                alt={user?.firstName}
+              />
               <Typography variant="body1">
                 {user.firstName} {user.lastName}
               </Typography>

@@ -28,19 +28,23 @@ const Profile = () => {
   const [profilePicture, setProfilePicture] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
 
+  // ✅ Backend URL (for profile + post images)
+  const backendUrl = process.env.REACT_APP_API_URL || "https://mern-social-3.onrender.com";
+
   // Fetch user profile
   const fetchUserProfile = useCallback(async () => {
     setLoading(true);
     try {
       const { data } = await API.get(`/users/${userId}`);
       const { user, posts } = data;
+
       setUser(user);
       setPosts(posts || []);
       setFirstName(user.firstName || "");
       setLastName(user.lastName || "");
       setEmail(user.email || "");
     } catch (err) {
-      console.error("Failed to load profile", err);
+      console.error("❌ Failed to load profile", err);
     } finally {
       setLoading(false);
     }
@@ -57,7 +61,9 @@ const Profile = () => {
       formData.append("firstName", firstName);
       formData.append("lastName", lastName);
       formData.append("email", email);
-      if (profilePicture) formData.append("profilePicture", profilePicture);
+
+      // ⚠️ must match backend multer field name (check your users.js)
+      if (profilePicture) formData.append("picture", profilePicture);
 
       const { data } = await API.put(`/users/${userId}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -68,7 +74,7 @@ const Profile = () => {
       setProfilePicture(null);
       setPreviewUrl(null);
     } catch (err) {
-      console.error("Failed to update profile", err);
+      console.error("❌ Failed to update profile", err);
       alert("Failed to update profile");
     }
   };
@@ -77,8 +83,7 @@ const Profile = () => {
   const handleProfilePictureChange = (file) => {
     setProfilePicture(file);
     if (file) {
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
+      setPreviewUrl(URL.createObjectURL(file));
     } else {
       setPreviewUrl(null);
     }
@@ -100,13 +105,20 @@ const Profile = () => {
     );
   }
 
+  // ✅ Build full profile picture URL
+  const profilePicUrl = previewUrl
+    ? previewUrl
+    : user.profilePicture
+    ? `${backendUrl}/assets/${user.profilePicture}`
+    : null;
+
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       {/* User info */}
       <Card sx={{ mb: 4, p: 3 }}>
         <Stack direction="row" spacing={2} alignItems="center">
           <Avatar
-            src={previewUrl || user.profilePicture}
+            src={profilePicUrl}
             alt={user.firstName}
             sx={{ width: 80, height: 80 }}
           />
@@ -137,14 +149,20 @@ const Profile = () => {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleProfilePictureChange(e.target.files[0])}
+                  onChange={(e) =>
+                    handleProfilePictureChange(e.target.files[0])
+                  }
                   style={{ marginBottom: "0.5rem" }}
                 />
                 <Stack direction="row" spacing={1}>
                   <Button variant="contained" color="primary" onClick={handleSave}>
                     Save
                   </Button>
-                  <Button variant="outlined" color="secondary" onClick={() => setEditMode(false)}>
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    onClick={() => setEditMode(false)}
+                  >
                     Cancel
                   </Button>
                 </Stack>
@@ -154,10 +172,18 @@ const Profile = () => {
                 <Typography variant="h5" component="div">
                   {`${user.firstName} ${user.lastName}`}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" component="div">
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  component="div"
+                >
                   {user.email}
                 </Typography>
-                <Button variant="outlined" sx={{ mt: 1 }} onClick={() => setEditMode(true)}>
+                <Button
+                  variant="outlined"
+                  sx={{ mt: 1 }}
+                  onClick={() => setEditMode(true)}
+                >
                   Edit Profile
                 </Button>
               </>
@@ -180,7 +206,11 @@ const Profile = () => {
               <PostCard
                 post={post}
                 onLike={(updatedPost) =>
-                  setPosts(posts.map((p) => (p._id === updatedPost._id ? updatedPost : p)))
+                  setPosts(
+                    posts.map((p) =>
+                      p._id === updatedPost._id ? updatedPost : p
+                    )
+                  )
                 }
               />
             </Grid>

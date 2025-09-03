@@ -1,16 +1,12 @@
-// client/src/utils/axios.js
 import axios from "axios";
 
-// ✅ Use environment variable, fallback to Render backend
 const API = axios.create({
-  baseURL: process.env.REACT_APP_API_URL
-    ? `${process.env.REACT_APP_API_URL}/api`
-    : "https://mern-social-3.onrender.com/api",
+  baseURL: "https://mern-social-3.onrender.com/api", // ✅ your backend
 });
 
 // ✅ Attach token to every request if available
 API.interceptors.request.use((req) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token"); // always fresh
   if (token) {
     req.headers.Authorization = `Bearer ${token}`;
   }

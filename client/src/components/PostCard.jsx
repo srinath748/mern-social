@@ -25,7 +25,8 @@ const PostCard = ({ post, onLike }) => {
   const [comment, setComment] = useState("");
 
   // ✅ Backend URL (use env for flexibility)
-  const backendUrl = process.env.REACT_APP_API_URL || "https://mern-social-3.onrender.com";
+  const backendUrl =
+    process.env.REACT_APP_API_URL || "https://mern-social-3.onrender.com";
 
   const handleLike = async () => {
     try {
@@ -40,7 +41,9 @@ const PostCard = ({ post, onLike }) => {
     e.preventDefault();
     if (!comment.trim()) return;
     try {
-      const { data } = await API.post(`/posts/${post._id}/comment`, { text: comment });
+      const { data } = await API.post(`/posts/${post._id}/comment`, {
+        text: comment,
+      });
       setComment("");
       onLike(data);
     } catch {
@@ -49,17 +52,25 @@ const PostCard = ({ post, onLike }) => {
   };
 
   const postFirstInitial = post.firstName?.[0]?.toUpperCase() || "U";
-  const postFullName = `${post.firstName || "Unknown"} ${post.lastName || ""}`.trim();
+  const postFullName = `${post.firstName || "Unknown"} ${
+    post.lastName || ""
+  }`.trim();
 
-  // ✅ Build full image URL
-  const postImage = post.picturePath ? `${backendUrl}${post.picturePath}` : null;
+  // ✅ Build correct image URL
+  const postImage = post.picturePath
+    ? `${backendUrl}/assets/${post.picturePath}`
+    : null;
 
   return (
     <Card sx={{ maxWidth: 600, margin: "20px auto" }}>
       {/* Post header */}
       <CardHeader
         avatar={<Avatar>{postFirstInitial}</Avatar>}
-        title={<Typography variant="body1" component="div">{postFullName}</Typography>}
+        title={
+          <Typography variant="body1" component="div">
+            {postFullName}
+          </Typography>
+        }
         subheader={
           <Typography variant="caption" color="text.secondary" component="div">
             {post.createdAt ? new Date(post.createdAt).toLocaleString() : ""}
@@ -85,7 +96,9 @@ const PostCard = ({ post, onLike }) => {
       <CardActions>
         <IconButton
           onClick={handleLike}
-          color={post.likes && Object.keys(post.likes).length > 0 ? "error" : "default"}
+          color={
+            post.likes && Object.keys(post.likes).length > 0 ? "error" : "default"
+          }
         >
           <FavoriteIcon />
         </IconButton>
@@ -139,8 +152,14 @@ const PostCard = ({ post, onLike }) => {
                         <Typography variant="body2" component="span">
                           {c.text}
                         </Typography>
-                        <Typography variant="caption" color="text.secondary" component="span">
-                          {c.createdAt ? new Date(c.createdAt).toLocaleString() : ""}
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          component="span"
+                        >
+                          {c.createdAt
+                            ? new Date(c.createdAt).toLocaleString()
+                            : ""}
                         </Typography>
                       </Stack>
                     }

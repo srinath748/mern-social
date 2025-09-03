@@ -28,21 +28,33 @@ app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 app.use(helmet());
 app.use(morgan("dev"));
 
-// CORS: allow your frontend to access backend
+/* -------------------- CORS Setup -------------------- */
+const allowedOrigins = [
+  "http://localhost:3000", // local frontend
+  process.env.FRONTEND_URL || "https://mern-social-4.onrender.com", // deployed frontend
+];
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "https://mern-social-4.onrender.com",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
 
 /* -------------------- Static folder for images -------------------- */
+// ✅ Ensure uploaded images are served cross-origin
 app.use(
   "/assets",
   express.static(path.join(__dirname, "public/assets"), {
     setHeaders: (res) => {
-      // Allow images to be loaded cross-origin
       res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+      res.setHeader("Access-Control-Allow-Origin", "*");
     },
   })
 );
@@ -50,7 +62,7 @@ app.use(
 /* -------------------- Routes -------------------- */
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/posts", postRoutes); // posts.js handles upload middleware
+app.use("/api/posts", postRoutes);
 
 /* -------------------- Default API Route -------------------- */
 app.get("/api", (req, res) => {

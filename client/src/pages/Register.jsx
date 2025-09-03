@@ -10,6 +10,7 @@ import {
   Button,
   Stack,
   Typography,
+  CircularProgress,
 } from "@mui/material";
 
 const Register = () => {
@@ -30,10 +31,20 @@ const Register = () => {
     setLoading(true);
     try {
       await API.post("/auth/register", form);
-      alert("Registration successful!");
+
+      alert("Registration successful! Please login.");
       navigate("/login");
     } catch (err) {
-      alert("Registration failed: " + err.response?.data?.msg);
+      console.error("Registration error:", err);
+
+      let message = "Registration failed. Please try again.";
+      if (err.response?.data?.msg) {
+        message = err.response.data.msg;
+      } else if (err.message) {
+        message = err.message;
+      }
+
+      alert(message);
     } finally {
       setLoading(false);
     }
@@ -46,6 +57,7 @@ const Register = () => {
           <Typography variant="h5" gutterBottom component="div">
             Register
           </Typography>
+
           <form onSubmit={handleSubmit}>
             <Stack spacing={2}>
               <TextField
@@ -82,15 +94,22 @@ const Register = () => {
                 fullWidth
                 required
               />
-              <Button type="submit" variant="contained" color="primary" disabled={loading}>
-                {loading ? "Registering..." : "Register"}
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+                disabled={loading}
+              >
+                {loading ? <CircularProgress size={24} /> : "Register"}
               </Button>
             </Stack>
           </form>
+
           <Typography
             variant="body2"
-            sx={{ mt: 2 }}
-            component="div" // Force div instead of default <p>
+            sx={{ mt: 2, textAlign: "center" }}
+            component="div"
           >
             Already have an account? <Link to="/login">Login</Link>
           </Typography>

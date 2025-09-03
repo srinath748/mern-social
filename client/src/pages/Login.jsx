@@ -23,6 +23,7 @@ const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
 
+  // Redirect if already logged in
   useEffect(() => {
     if (token) navigate("/");
   }, [token, navigate]);
@@ -35,12 +36,25 @@ const Login = () => {
     setLoading(true);
     try {
       const { data } = await API.post("/auth/login", form);
+
+      // Save token for API requests
       localStorage.setItem("token", data.token);
+
+      // Save user + token in Redux
       dispatch(setLogin(data));
+
       navigate("/");
     } catch (err) {
-      console.error(err);
-      alert(err.response?.data?.msg || "Login failed");
+      console.error("Login error:", err);
+
+      let message = "Login failed. Please try again.";
+      if (err.response?.data?.msg) {
+        message = err.response.data.msg;
+      } else if (err.message) {
+        message = err.message;
+      }
+
+      alert(message);
     } finally {
       setLoading(false);
     }

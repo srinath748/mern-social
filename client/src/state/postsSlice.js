@@ -13,9 +13,7 @@ export const addPost = createAsyncThunk(
   "posts/addPost",
   async (postData) => {
     const { data } = await API.post("/posts", postData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+      headers: { "Content-Type": "multipart/form-data" },
     });
     return data;
   }
@@ -30,11 +28,11 @@ export const likePost = createAsyncThunk(
   }
 );
 
-// Comment on a post
+// Comment on a post (use `text` consistently)
 export const commentPost = createAsyncThunk(
   "posts/commentPost",
-  async ({ postId, comment }) => {
-    const { data } = await API.post(`/posts/${postId}/comment`, { comment });
+  async ({ postId, text }) => {
+    const { data } = await API.post(`/posts/${postId}/comment`, { text });
     return data;
   }
 );
@@ -54,6 +52,7 @@ const postsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Fetch posts
       .addCase(fetchPosts.pending, (state) => {
         state.status = "loading";
       })
@@ -65,13 +64,19 @@ const postsSlice = createSlice({
         state.status = "failed";
         state.error = action.error.message;
       })
+
+      // Add new post
       .addCase(addPost.fulfilled, (state, action) => {
         state.items.unshift(action.payload);
       })
+
+      // Like post
       .addCase(likePost.fulfilled, (state, action) => {
         const index = state.items.findIndex((p) => p._id === action.payload._id);
         if (index !== -1) state.items[index] = action.payload;
       })
+
+      // Comment post
       .addCase(commentPost.fulfilled, (state, action) => {
         const index = state.items.findIndex((p) => p._id === action.payload._id);
         if (index !== -1) state.items[index] = action.payload;
