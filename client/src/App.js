@@ -9,16 +9,17 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
+import PostsList from "./components/PostsList"; // ✅ Import PostsList
 
 function App() {
-  const token = useSelector((state) => state.auth.token) || localStorage.getItem("token"); 
-  // ✅ fallback to localStorage in case Redux hasn't rehydrated yet
+  const token =
+    useSelector((state) => state.auth.token) || localStorage.getItem("token");
 
   const themeMode = useSelector((state) => state.theme.mode);
 
   const theme = createTheme({
     palette: {
-      mode: themeMode || "light", // default to light mode if not set
+      mode: themeMode || "light",
     },
   });
 
@@ -31,7 +32,16 @@ function App() {
           {/* Protected Home route */}
           <Route
             path="/"
-            element={token ? <Home /> : <Navigate to="/login" />}
+            element={
+              token ? (
+                <>
+                  <Home /> {/* Existing home content */}
+                  <PostsList /> {/* ✅ Render posts feed below Home */}
+                </>
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
           />
 
           {/* Auth routes */}

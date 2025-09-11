@@ -1,4 +1,3 @@
-// client/src/components/PostCard.jsx
 import React, { useState } from "react";
 import API from "../utils/axios";
 import {
@@ -21,17 +20,18 @@ import {
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import ChatBubbleIcon from "@mui/icons-material/ChatBubble";
 
-const PostCard = ({ post, onLike }) => {
+const PostCard = ({ post, onUpdate }) => {
   const [comment, setComment] = useState("");
 
-  // ✅ Backend URL (use env for flexibility)
   const backendUrl =
-    process.env.REACT_APP_API_URL || "https://mern-social-3.onrender.com";
+    process.env.REACT_APP_API_BASE_URL || "https://mern-social-3.onrender.com";
+
+  const postImage = post.picturePath ? `${backendUrl}${post.picturePath}` : null;
 
   const handleLike = async () => {
     try {
       const { data } = await API.patch(`/posts/${post._id}/like`);
-      onLike(data);
+      onUpdate(data); // update Redux store
     } catch {
       alert("Failed to like post");
     }
@@ -45,76 +45,59 @@ const PostCard = ({ post, onLike }) => {
         text: comment,
       });
       setComment("");
-      onLike(data);
+      onUpdate(data); // update Redux store
     } catch {
       alert("Failed to comment");
     }
   };
 
-  const postFirstInitial = post.firstName?.[0]?.toUpperCase() || "U";
-  const postFullName = `${post.firstName || "Unknown"} ${
-    post.lastName || ""
-  }`.trim();
-
-  // ✅ Build correct image URL
-  const postImage = post.picturePath
-    ? `${backendUrl}/assets/${post.picturePath}`
-    : null;
+  const userInitial = post.firstName?.[0]?.toUpperCase() || "U";
+  const userFullName = `${post.firstName || "Unknown"} ${post.lastName || ""}`.trim();
 
   return (
     <Card sx={{ maxWidth: 600, margin: "20px auto" }}>
-      {/* Post header */}
       <CardHeader
-        avatar={<Avatar>{postFirstInitial}</Avatar>}
-        title={
-          <Typography variant="body1" component="div">
-            {postFullName}
-          </Typography>
-        }
+        avatar={<Avatar>{userInitial}</Avatar>}
+        title={<Typography variant="body1">{userFullName}</Typography>}
         subheader={
-          <Typography variant="caption" color="text.secondary" component="div">
+          <Typography variant="caption" color="text.secondary">
             {post.createdAt ? new Date(post.createdAt).toLocaleString() : ""}
           </Typography>
         }
       />
 
-      {/* Post content */}
       <CardContent>
-        <Typography variant="body1" gutterBottom component="div">
+        <Typography variant="body1" gutterBottom>
           {post.description}
         </Typography>
         {postImage && (
           <img
             src={postImage}
             alt="post"
-            style={{ maxWidth: "100%", borderRadius: 4, marginTop: "10px" }}
+            style={{ maxWidth: "100%", borderRadius: 4, marginTop: 10 }}
           />
         )}
       </CardContent>
 
-      {/* Actions */}
       <CardActions>
         <IconButton
           onClick={handleLike}
-          color={
-            post.likes && Object.keys(post.likes).length > 0 ? "error" : "default"
-          }
+          color={post.likes && Object.keys(post.likes).length > 0 ? "error" : "default"}
         >
           <FavoriteIcon />
         </IconButton>
-        <Typography sx={{ ml: 0.5 }} component="div">
+        <Typography sx={{ ml: 0.5 }}>
           {post.likes ? Object.keys(post.likes).length : 0}
         </Typography>
 
         <IconButton>
           <ChatBubbleIcon />
         </IconButton>
-        <Typography sx={{ ml: 0.5 }} component="div">
+        <Typography sx={{ ml: 0.5 }}>
           {post.comments?.length || 0}
         </Typography>
       </CardActions>
 
-      {/* Comment input */}
       <CardContent>
         <form onSubmit={handleComment}>
           <Stack direction="row" spacing={1} alignItems="center">
@@ -126,13 +109,12 @@ const PostCard = ({ post, onLike }) => {
               value={comment}
               onChange={(e) => setComment(e.target.value)}
             />
-            <Button type="submit" variant="contained" color="primary">
+            <Button type="submit" variant="contained">
               Comment
             </Button>
           </Stack>
         </form>
 
-        {/* Comments list */}
         {post.comments?.length > 0 && (
           <List sx={{ mt: 2 }}>
             {post.comments.map((c) => (
@@ -142,26 +124,14 @@ const PostCard = ({ post, onLike }) => {
                     <Avatar>{c.firstName?.[0]?.toUpperCase() || "U"}</Avatar>
                   </ListItemAvatar>
                   <ListItemText
-                    primary={
-                      <Typography variant="body1" component="span">
-                        {`${c.firstName || "Unknown"} ${c.lastName || ""}`.trim()}
-                      </Typography>
-                    }
+                    primary={`${c.firstName || "Unknown"} ${c.lastName || ""}`.trim()}
                     secondary={
-                      <Stack spacing={0.3} component="span">
-                        <Typography variant="body2" component="span">
-                          {c.text}
+                      <>
+                        <Typography variant="body2">{c.text}</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {c.createdAt ? new Date(c.createdAt).toLocaleString() : ""}
                         </Typography>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          component="span"
-                        >
-                          {c.createdAt
-                            ? new Date(c.createdAt).toLocaleString()
-                            : ""}
-                        </Typography>
-                      </Stack>
+                      </>
                     }
                   />
                 </ListItem>

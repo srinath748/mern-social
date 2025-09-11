@@ -1,25 +1,13 @@
-// client/src/state/postsSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import API from "../utils/axios"; // your Axios instance
+import API from "../utils/axios";
 
-// Fetch all posts
+// Fetch posts
 export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
   const { data } = await API.get("/posts");
   return data;
 });
 
-// Add a new post (supports text + optional image)
-export const addPost = createAsyncThunk(
-  "posts/addPost",
-  async (postData) => {
-    const { data } = await API.post("/posts", postData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-    return data;
-  }
-);
-
-// Like a post
+// Like post
 export const likePost = createAsyncThunk(
   "posts/likePost",
   async ({ postId }) => {
@@ -28,7 +16,7 @@ export const likePost = createAsyncThunk(
   }
 );
 
-// Comment on a post (use `text` consistently)
+// Comment post
 export const commentPost = createAsyncThunk(
   "posts/commentPost",
   async ({ postId, text }) => {
@@ -52,7 +40,6 @@ const postsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch posts
       .addCase(fetchPosts.pending, (state) => {
         state.status = "loading";
       })
@@ -64,19 +51,10 @@ const postsSlice = createSlice({
         state.status = "failed";
         state.error = action.error.message;
       })
-
-      // Add new post
-      .addCase(addPost.fulfilled, (state, action) => {
-        state.items.unshift(action.payload);
-      })
-
-      // Like post
       .addCase(likePost.fulfilled, (state, action) => {
         const index = state.items.findIndex((p) => p._id === action.payload._id);
         if (index !== -1) state.items[index] = action.payload;
       })
-
-      // Comment post
       .addCase(commentPost.fulfilled, (state, action) => {
         const index = state.items.findIndex((p) => p._id === action.payload._id);
         if (index !== -1) state.items[index] = action.payload;
@@ -84,6 +62,5 @@ const postsSlice = createSlice({
   },
 });
 
-// Export slice actions and reducer
 export const { updatePost } = postsSlice.actions;
 export default postsSlice.reducer;

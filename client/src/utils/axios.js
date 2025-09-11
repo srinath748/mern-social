@@ -1,15 +1,13 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://mern-social-3.onrender.com/api", // ✅ your backend
+  baseURL: process.env.REACT_APP_API_URL, // should be https://mern-social-3.onrender.com/api
 });
 
-// ✅ Attach token to every request if available
+// Attach token automatically if available
 API.interceptors.request.use((req) => {
-  const token = localStorage.getItem("token"); // always fresh
-  if (token) {
-    req.headers.Authorization = `Bearer ${token}`;
-  }
+  const token = localStorage.getItem("token");
+  if (token) req.headers.Authorization = `Bearer ${token}`;
   return req;
 });
 
