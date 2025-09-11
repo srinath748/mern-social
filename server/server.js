@@ -1,4 +1,4 @@
-// server/server.js
+// server/server.js  (replace the existing related parts with this)
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
@@ -8,53 +8,58 @@ import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// Routes
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import postRoutes from "./routes/posts.js";
 
-// Load environment variables
 dotenv.config();
 
-// ES module workaround for __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 
-/* -------------------- Middleware -------------------- */
+/* -------------------- Basic middleware -------------------- */
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true, limit: "5mb" }));
-app.use(helmet());
 app.use(morgan("dev"));
+
+/* -------------------- Helmet: explicitly allow cross-origin resources -------------------- */
+// set all the default helmet protections, then set a permissive CORP for resources
+app.use(helmet());
+// override CORP to allow cross-origin resource embedding (images)
+app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 
 /* -------------------- CORS Setup -------------------- */
 const allowedOrigins = [
-  "http://localhost:3000", // local frontend
+  "http://localhost:3000", // local dev
   process.env.FRONTEND_URL || "https://mern-social-4.onrender.com", // deployed frontend
+  // add other frontends here if needed
 ];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
+      // allow requests with no origin (like mobile apps, curl)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
   })
 );
 
 /* -------------------- Static folder for images -------------------- */
-// ✅ Ensure uploaded images are served cross-origin
+/* Serve public/assets at /assets and force permissive CORP + CORS headers for image responses */
 app.use(
   "/assets",
-  express.static(path.join(__dirname, "public/assets"), {
-    setHeaders: (res) => {
+  express.static(path.join(__dirname, "public", "assets"), {
+    setHeaders: (res /*, filePath, stat */) => {
+      // Allow other origins to embed and fetch these resources
       res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Origin", "*"); // or set to your frontend origin
+      // helpful CORS headers for some browsers / clients
+      res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     },
   })
 );
@@ -71,7 +76,6 @@ app.get("/api", (req, res) => {
 
 /* -------------------- Start Server + Connect DB -------------------- */
 const PORT = process.env.PORT || 5000;
-
 mongoose
   .connect(process.env.MONGO_URL)
   .then(() => {

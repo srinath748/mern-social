@@ -1,11 +1,16 @@
 // server/middleware/upload.js
 import multer from "multer";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Configure storage location and filename
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "public/assets"); // store uploaded images here
+    // Always resolve relative to server root
+    cb(null, path.join(__dirname, "../public/assets"));
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
