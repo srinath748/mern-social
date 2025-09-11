@@ -53,4 +53,49 @@ router.post("/", verifyToken, upload.single("picture"), async (req, res) => {
   }
 });
 
+/* -------------------- Like/Unlike Post -------------------- */
+router.patch("/:id/like", verifyToken, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    if (!post) return res.status(404).json({ msg: "Post not found" });
+
+    const userId = req.user.id;
+    if (post.likes.get(userId)) {
+      post.likes.delete(userId);
+    } else {
+      post.likes.set(userId, true);
+    }
+
+    const updatedPost = await post.save();
+    res.json(updatedPost);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/* -------------------- Comment on Post -------------------- */
+router.post("/:id/comment", verifyToken, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    if (!post) return res.status(404).json({ msg: "Post not found" });
+
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ msg: "User not found" });
+
+    const newComment = {
+      userId: user._id.toString(),
+      firstName: user.firstName,
+      lastName: user.lastName,
+      text: req.body.comment || "",
+      createdAt: new Date(),
+    };
+
+    post.comments.push(newComment);
+    const updatedPost = await post.save();
+    res.json(updatedPost);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;
