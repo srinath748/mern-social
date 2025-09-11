@@ -1,4 +1,3 @@
-// client/src/state/postsSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from "../utils/axios";
 
@@ -52,7 +51,6 @@ const postsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch posts
       .addCase(fetchPosts.pending, (state) => {
         state.status = "loading";
       })
@@ -64,19 +62,13 @@ const postsSlice = createSlice({
         state.status = "failed";
         state.error = action.error.message;
       })
-
-      // Add post
       .addCase(addPost.fulfilled, (state, action) => {
         state.items.unshift(action.payload);
       })
-
-      // Like post
       .addCase(likePost.fulfilled, (state, action) => {
         const index = state.items.findIndex((p) => p._id === action.payload._id);
         if (index !== -1) state.items[index] = action.payload;
       })
-
-      // Comment post
       .addCase(commentPost.fulfilled, (state, action) => {
         const index = state.items.findIndex((p) => p._id === action.payload._id);
         if (index !== -1) state.items[index] = action.payload;
@@ -86,5 +78,4 @@ const postsSlice = createSlice({
 
 // Export slice actions and reducer
 export const { updatePost } = postsSlice.actions;
-export { addPost, fetchPosts, likePost, commentPost }; // ✅ export all thunks
 export default postsSlice.reducer;
